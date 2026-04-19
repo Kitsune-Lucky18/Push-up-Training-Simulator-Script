@@ -1,1 +1,1 @@
-https://raw.githubusercontent.com/Kitsune-Lucky18/Push-up-Training-Simulator-Script/refs/heads/main/PushUpSimulator.txt
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Kitsune-Lucky18/Push-up-Training-Simulator-Script/refs/heads/main/PushUpSimulator.txt"))()
