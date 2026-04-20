@@ -1,0 +1,115 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local Player = game.Players.LocalPlayer
+
+-- Remote
+local BuyCashRemote = ReplicatedStorage:WaitForChild("events"):WaitForChild("buyUpgrade")
+local RebirthRemote = ReplicatedStorage:WaitForChild("events"):WaitForChild("rebirth")
+local ClaimAllRemote = ReplicatedStorage:WaitForChild("events"):WaitForChild("claimAll")
+local UploadAllRemote = ReplicatedStorage:WaitForChild("events"):WaitForChild("uploadAll")
+
+-- Status toggle
+local autoBuyCash, autoRebirth, autoClaimAll, autoUploadAll = false,false,false,false
+
+-- Fungsi
+local function doBuyCash()
+    local args = {"cash"}
+    BuyCashRemote:FireServer(unpack(args))
+end
+
+local function doRebirth()
+    local args = {5}
+    RebirthRemote:FireServer(unpack(args))
+end
+
+local function doClaimAll()
+    ClaimAllRemote:FireServer()
+end
+
+local function doUploadAll()
+    UploadAllRemote:FireServer()
+end
+
+-- Loop
+RunService.Heartbeat:Connect(function()
+    if autoBuyCash then doBuyCash() end
+    if autoRebirth then doRebirth() end
+    if autoClaimAll then doClaimAll() end
+    if autoUploadAll then doUploadAll() end
+end)
+
+-- UI Panel
+local ScreenGui = Instance.new("ScreenGui", Player:WaitForChild("PlayerGui"))
+ScreenGui.ResetOnSpawn = false
+
+local Panel = Instance.new("Frame", ScreenGui)
+Panel.Size = UDim2.new(0, 250, 0, 250)
+Panel.Position = UDim2.new(0, 10, 0, 10)
+Panel.BackgroundColor3 = Color3.fromRGB(0,0,0)
+Panel.Active, Panel.Draggable = true, true
+Instance.new("UICorner", Panel).CornerRadius = UDim.new(0,10)
+
+-- Tombol collapse/expand
+local TogglePanel = Instance.new("TextButton", Panel)
+TogglePanel.Size = UDim2.new(0, 250, 0, 25)
+TogglePanel.Position = UDim2.new(0,0,0,0)
+TogglePanel.Text = "▲ Close Panel"
+TogglePanel.BackgroundColor3 = Color3.fromRGB(30,30,30)
+TogglePanel.TextColor3 = Color3.fromRGB(255,255,255)
+Instance.new("UICorner", TogglePanel).CornerRadius = UDim.new(0,8)
+
+-- Helper tombol
+local function makeButton(text,posY,toggleVar,callback)
+    local btn = Instance.new("TextButton", Panel)
+    btn.Size = UDim2.new(0, 230, 0, 40)
+    btn.Position = UDim2.new(0,10,0,posY)
+    btn.Text = text.." OFF"
+    btn.BackgroundColor3 = Color3.fromRGB(50,50,50)
+    btn.TextColor3 = Color3.fromRGB(255,255,255)
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0,8)
+    btn.MouseButton1Click:Connect(function()
+        _G[toggleVar] = not _G[toggleVar]
+        btn.Text = _G[toggleVar] and text.." ON" or text.." OFF"
+        btn.BackgroundColor3 = _G[toggleVar] and Color3.fromRGB(0,100,0) or Color3.fromRGB(100,0,0)
+        callback(_G[toggleVar])
+    end)
+    return btn
+end
+
+-- Tombol fitur
+local BuyCashButton = makeButton("Auto Buy Cash",35,"autoBuyCash",function(v) autoBuyCash=v end)
+local RebirthButton = makeButton("Auto Rebirth",80,"autoRebirth",function(v) autoRebirth=v end)
+local ClaimAllButton = makeButton("Auto Claim All Video",125,"autoClaimAll",function(v) autoClaimAll=v end)
+local UploadAllButton = makeButton("Auto Upload All Video",170,"autoUploadAll",function(v) autoUploadAll=v end)
+
+-- Label YouTube
+local Label = Instance.new("TextLabel", Panel)
+Label.Size = UDim2.new(0, 230, 0, 30)
+Label.Position = UDim2.new(0,10,0,215)
+Label.BackgroundTransparency = 1
+Label.TextColor3 = Color3.fromRGB(255,255,255)
+Label.Text = "Youtube = Kitsune_Lucky18"
+Label.TextScaled = true
+
+-- Collapse/Expand logic
+local panelOpen = true
+TogglePanel.MouseButton1Click:Connect(function()
+    panelOpen = not panelOpen
+    if panelOpen then
+        Panel.Size = UDim2.new(0, 250, 0, 250)
+        TogglePanel.Text = "▲ Close Panel"
+        BuyCashButton.Visible = true
+        RebirthButton.Visible = true
+        ClaimAllButton.Visible = true
+        UploadAllButton.Visible = true
+        Label.Visible = true
+    else
+        Panel.Size = UDim2.new(0, 250, 0, 25)
+        TogglePanel.Text = "▼ Open Panel"
+        BuyCashButton.Visible = false
+        RebirthButton.Visible = false
+        ClaimAllButton.Visible = false
+        UploadAllButton.Visible = false
+        Label.Visible = false
+    end
+end)
